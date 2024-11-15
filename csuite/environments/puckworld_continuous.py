@@ -274,26 +274,50 @@ class PuckWorldContinuous(base.Environment):
     return np.asarray(image, dtype=np.uint8)
 
 
-from csuite.utils import rendering
+import pygame
 import time
 
 
 if __name__ == "__main__":
-  viewer = rendering.SimpleImageViewer()
+
   env = PuckWorldContinuous()
   obs = env.start(seed=0)
-  viewer.imshow(env.render())
+
+  pygame.init()
+  rgb_array = env.render()
+  screen = pygame.display.set_mode(rgb_array.shape[1::-1])
+  pygame.display.set_caption("Visualization")
+
+  running = True
   num_steps = 200
   velocities = np.zeros(num_steps)
-  for i in range(num_steps):
-    # obs, reward = env.step(np.random.choice(4))
-    if obs[3] >= 0:
+  i = 0
+  while running and i < num_steps:
+      for event in pygame.event.get():
+          if event.type == pygame.QUIT:
+              running = False
+
+      screen.fill((0, 0, 0))  # Fill the screen with black
+      
+      if obs[3] >= 0:
         action = [-0.5, 1]
-    else:
-        action = [0, -1]
-    obs, reward = env.step(np.array(action))
-    velocities[i] = obs[3]
-    print(obs, reward)
-    viewer.imshow(env.render())
-    time.sleep(0.05)
+      else:
+          action = [0, -1]
+      obs, reward = env.step(np.array(action))
+      velocities[i] = obs[3]
+      print(obs, reward)
+
+      rgb_array = env.render()
+      
+      surface = pygame.Surface(rgb_array.shape[1::-1])
+      pygame.surfarray.blit_array(surface, rgb_array)
+      surface = pygame.transform.rotate(surface, 90)
+
+      screen.blit(surface, (0, 0))
+      pygame.display.update()
+
+      pygame.time.delay(60)  # Delay in milliseconds
+      i += 1
+
+  pygame.quit()
   print(np.max(velocities))

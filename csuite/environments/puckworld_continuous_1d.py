@@ -266,28 +266,3 @@ class PuckWorldContinuous1D(base.Environment):
       fill=_GREEN_HEX)
 
     return np.asarray(image, dtype=np.uint8)
-
-
-from csuite.utils import rendering
-import time
-
-
-if __name__ == "__main__":
-  viewer = rendering.SimpleImageViewer()
-  env = PuckWorldContinuous()
-  obs = env.start(seed=0)
-  viewer.imshow(env.render())
-  num_steps = 200
-  velocities = np.zeros(num_steps)
-  for i in range(num_steps):
-    # obs, reward = env.step(np.random.choice(4))
-    if obs[3] >= 0:
-        action = [-0.5, 1]
-    else:
-        action = [0, -1]
-    obs, reward = env.step(np.array(action))
-    velocities[i] = obs[3]
-    print(obs, reward)
-    viewer.imshow(env.render())
-    time.sleep(0.05)
-  print(np.max(velocities))
