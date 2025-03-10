@@ -30,6 +30,7 @@ from csuite.environments import puckworld_continuous
 from csuite.environments import puckworld_continuous_1d
 from csuite.environments.base import Environment
 from csuite.environments.experimental import pendulum_poke
+from csuite.environments.mujoco_continuing import envs_all
 from csuite.utils import dm_env_wrapper
 from csuite.utils import gym_wrapper
 
@@ -46,7 +47,8 @@ class EnvName(enum.Enum):
   PENDULUM_CONTINUOUS = 'pendulum_continuous'
   PUCKWORLD_CONTINUOUS = 'puckworld_continuous'
   PUCKWORLD_CONTINUOUS_1D = 'puckworld_continuous_1d'
-
+  HALF_CHEETAH = 'half_cheetah'
+  SWIMMER = 'swimmer'
 
 _ENVS = {
     EnvName.ACCESS_CONTROL: access_control.AccessControl,
@@ -59,7 +61,9 @@ _ENVS = {
     EnvName.PUCKWORLD: puckworld.PuckWorld,
     EnvName.PENDULUM_CONTINUOUS: pendulum_continuous.PendulumContinuous,
     EnvName.PUCKWORLD_CONTINUOUS: puckworld_continuous.PuckWorldContinuous,
-    EnvName.PUCKWORLD_CONTINUOUS_1D: puckworld_continuous_1d.PuckWorldContinuous1D
+    EnvName.PUCKWORLD_CONTINUOUS_1D: puckworld_continuous_1d.PuckWorldContinuous1D,
+    EnvName.SWIMMER: envs_all.SwimmerContinuing,
+    EnvName.HALF_CHEETAH: envs_all.HalfCheetahContinuing,
 }
 
 

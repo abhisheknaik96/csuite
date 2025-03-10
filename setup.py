@@ -36,14 +36,14 @@ setup(
     packages=find_namespace_packages(exclude=['*_test.py']),
     install_requires=[
         'dm_env>=1.5',
-        'gym>=0.19.0',
+        'gymnasium>=1.0.0',
         'numpy>=1.18.0',
         'Pillow>=9.0.1',
         'absl-py>=0.7.1',
         'pytest>=6.2.5',
     ],
     zip_safe=False,  # Required for full installation.
-    python_requires='>=3.9,<3.11',
+    python_requires='>=3.9,<3.13',
     classifiers=[
         # TODO(b/241264065): list classifiers.
         'Topic :: Scientific/Engineering :: Artificial Intelligence',

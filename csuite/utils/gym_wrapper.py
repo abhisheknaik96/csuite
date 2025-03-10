@@ -20,8 +20,8 @@ from typing import Any, Dict, Tuple, Optional, Union
 
 from csuite.environments import base
 from dm_env import specs
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 
 # OpenAI gym step format = obs, reward, is_finished, other_info
