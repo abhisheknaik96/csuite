@@ -1,19 +1,16 @@
-# The continuing (non-episodic) version of Mujoco's HalfCheetah.
+# The continuing (non-episodic) versions of various Mujoco environments (from Gymnasium).
 
-import time
-import numpy as np
 import gymnasium as gym
 
 
-LARGE_TRUNCATION_LIMIT = 10_000_000
-RESET_PENALTY = -10
-
-
 class BaseContinuingEnvBasedOnGym():
+    """The class outlines the basic template that all the domains will follow."""
     
     def __init__(self, **env_args):
         assert self.env_key is not None, 'env_key must be defined in the subclass'
-        self.gym_env = gym.make(self.env_key, max_episode_steps=LARGE_TRUNCATION_LIMIT, **env_args)
+        self.reset_penalty = env_args.get('reset_penalty', -10)
+        self.truncation_limit = env_args.get('truncation_limit', 100_000_000)
+        self.gym_env = gym.make(self.env_key, max_episode_steps=self.truncation_limit, **env_args)
         self.rng_seed = None
 
     def start(self, seed):
@@ -30,6 +27,11 @@ class BaseContinuingEnvBasedOnGym():
 
 
 class SwimmerContinuing(BaseContinuingEnvBasedOnGym):
+    """
+    Changes to the Gymnasium's Swimmer-v5 to make this continuing version:
+        - removed the truncation limit (increased it from 1000 to 100M)
+    No other change required because the Swimmer never gets 'unhealthy'.
+    """
     
     def __init__(self, **env_args):
         self.env_key = 'Swimmer-v5'
@@ -37,51 +39,60 @@ class SwimmerContinuing(BaseContinuingEnvBasedOnGym):
 
 
 class HalfCheetahContinuing(BaseContinuingEnvBasedOnGym):
+    """
+    Changes to the Gymnasium's HalfCheetah-v5 to make this continuing version:
+        - removed the truncation limit (increased it from 1000 to 100M)
+        - if the HalfCheetah flips over, it is again 'reset' with a penalthy (as above)
+    The last case is not captured as 'unhealthy' by the original Gymnasium version.
+    """
 
     def __init__(self, **env_args):
         self.env_key = 'HalfCheetah-v5'
         super().__init__(**env_args)
     
     def step(self, action):
-        obs, reward, terminated_flag, truncated_flag, info = self.gym_env.step(action)
+        obs, reward, _, _, _ = self.gym_env.step(action)
         if self.gym_env.unwrapped.data.body('torso').xpos[2] < 0.15:
-            # print('maybe flipped')
             obs, _ = self.gym_env.reset(seed=self.rng_seed)
-            reward = RESET_PENALTY
+            reward = self.reset_penalty
         return obs, reward
 
 
 class AntContinuing(BaseContinuingEnvBasedOnGym):
+    """
+    Changes to the Gymnasium's Ant-v5 to make this continuing version:
+        - removed the truncation limit (increased it from 1000 to 100M)
+        - if the Ant is unhealthy, it is 'reset', and the agent gets a reset penalty and the new observation
+        - if the Ant flips over, it is again 'reset' with a penalthy (as above). 
+    The last case is not captured as 'unhealthy' by the original Gymnasium version.
+    """
 
     def __init__(self, **env_args):
         self.env_key = 'Ant-v5'
         super().__init__(**env_args)
 
     def step(self, action):
-        obs, reward, terminated_flag, truncated_flag, info = self.gym_env.step(action)
-        print(obs[0])
-        if terminated_flag:     # this happens when the ant is 'unhealthy': https://gymnasium.farama.org/environments/mujoco/ant/
-            print('unhealthy, resetting')
-            obs, _ = self.gym_env.reset(seed=self.rng_seed)
-            reward = RESET_PENALTY
+        obs, reward, terminated_flag, _, _ = self.gym_env.step(action)
+        if terminated_flag or (obs[0] < 0.3):                   # In gymnasium, the Ant is not 'unhealthy' even if 
+            obs, _ = self.gym_env.reset(seed=self.rng_seed)     # it flips over: https://gymnasium.farama.org/environments/mujoco/ant/
+            reward = self.reset_penalty
         return obs, reward
 
 
 class HumanoidContinuing(BaseContinuingEnvBasedOnGym):
-
+    """
+    Changes to the Gymnasium's Ant-v5 to make this continuing version:
+        - removed the truncation limit (increased it from 1000 to 100M)
+        - if the Humanoid is unhealthy, it is 'reset', and the agent gets a reset penalty and the new observation
+    """
+    
     def __init__(self, **env_args):
         self.env_key = 'Humanoid-v5'
         super().__init__(**env_args)
 
-
-if __name__ == "__main__":
-    # env = HalfCheetahContinuing(render_mode='human')
-    env = HalfCheetahContinuing()
-    obs = env.start(0)
-    # print(obs)
-    for i in range(10):
-        action = np.random.random(6)
-        obs, reward = env.step(action)
-        # print(i, obs, reward, '\n')
-        print(env.render().shape)
-        # time.sleep(0.2)
+    def step(self, action):
+        obs, reward, terminated_flag, _, _ = self.gym_env.step(action)
+        if terminated_flag:
+            obs, _ = self.gym_env.reset(seed=self.rng_seed)
+            reward = self.reset_penalty
+        return obs, reward
