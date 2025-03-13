@@ -49,6 +49,8 @@ class EnvName(enum.Enum):
   PUCKWORLD_CONTINUOUS_1D = 'puckworld_continuous_1d'
   HALF_CHEETAH = 'half_cheetah'
   SWIMMER = 'swimmer'
+  ANT = 'ant'
+  HUMANOID = 'humanoid'
 
 _ENVS = {
     EnvName.ACCESS_CONTROL: access_control.AccessControl,
@@ -64,6 +66,8 @@ _ENVS = {
     EnvName.PUCKWORLD_CONTINUOUS_1D: puckworld_continuous_1d.PuckWorldContinuous1D,
     EnvName.SWIMMER: envs_all.SwimmerContinuing,
     EnvName.HALF_CHEETAH: envs_all.HalfCheetahContinuing,
+    EnvName.ANT: envs_all.AntContinuing,
+    EnvName.HUMANOID: envs_all.HumanoidContinuing,
 }
 
 
