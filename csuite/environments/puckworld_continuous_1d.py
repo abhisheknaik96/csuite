@@ -140,9 +140,7 @@ class PuckWorldContinuous1D(base.Environment):
         delta_vel_x = ((action[0] * _ACCELERATION -
                         self._params.friction * self._state.puck_vel_x) *
                        self._params.simulation_step_size)
-        delta_vel_y = ((action[1] * _ACCELERATION -
-                        self._params.friction * self._state.puck_vel_y) *
-                       self._params.simulation_step_size)
+        delta_vel_y = 0
         self._state.puck_vel_x += delta_vel_x
         self._state.puck_vel_y += delta_vel_y
 
