@@ -38,6 +38,19 @@ class SwimmerContinuing(BaseContinuingEnvBasedOnGym):
         self.env_key = 'Swimmer-v5'
         super().__init__(**env_args)
 
+    def _bound_angles(self, angles):
+        """Bound the angles in [-pi, pi]."""
+        angles %= (2 * np.pi)
+        for i, _ in enumerate(angles):
+            if angles[i] > np.pi:
+                angles[i] -= 2 * np.pi
+        return angles
+
+    def step(self, action):
+        obs, reward, _, _, _ = self.gym_env.step(action)
+        obs[:3] = self._bound_angles(obs[:3])
+        return obs, reward
+
 
 class HalfCheetahContinuing(BaseContinuingEnvBasedOnGym):
     """

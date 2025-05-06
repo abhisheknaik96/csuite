@@ -3,7 +3,15 @@ import gymnasium as gym
 from envs_all import *
 
 
-def simple_test():
+def test_angle_bound():
+    env = SwimmerContinuing()
+    obs = env.start(0)
+    for i in range(10000):
+        action = np.random.random(2)
+        obs, reward = env.step(action)
+
+
+def test_render_simple():
     env = HalfCheetahContinuing(render_mode='rgb_array')
     obs = env.start(0)
     # print(obs)
@@ -16,4 +24,5 @@ def simple_test():
 
 
 if __name__ == "__main__":
-    simple_test()
+    # test_render_simple()
+    test_angle_bound()
