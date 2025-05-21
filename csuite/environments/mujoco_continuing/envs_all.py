@@ -4,6 +4,15 @@ import numpy as np
 import gymnasium as gym
 
 
+def _bound_angles(self, angles):
+    """Bound the angles in [-pi, pi]."""
+    angles %= (2 * np.pi)
+    for i, _ in enumerate(angles):
+        if angles[i] > np.pi:
+            angles[i] -= 2 * np.pi
+    return angles
+
+
 class BaseContinuingEnvBasedOnGym():
     """The class outlines the basic template that all the domains will follow."""
     
@@ -38,17 +47,9 @@ class SwimmerContinuing(BaseContinuingEnvBasedOnGym):
         self.env_key = 'Swimmer-v5'
         super().__init__(**env_args)
 
-    def _bound_angles(self, angles):
-        """Bound the angles in [-pi, pi]."""
-        angles %= (2 * np.pi)
-        for i, _ in enumerate(angles):
-            if angles[i] > np.pi:
-                angles[i] -= 2 * np.pi
-        return angles
-
     def step(self, action):
         obs, reward, _, _, _ = self.gym_env.step(action)
-        obs[:3] = self._bound_angles(obs[:3])
+        obs[:3] = _bound_angles(obs[:3])
         return obs, reward
 
 
@@ -124,7 +125,7 @@ class ReacherContinuing(BaseContinuingEnvBasedOnGym):
         self.env_key = 'Reacher-v5'
         super().__init__(**env_args)
         self.steps_per_goal = 0
-        self.max_steps_per_goal = env_args.get('max_steps_per_goal', 50)
+        self.max_steps_per_goal = env_args.get('max_steps_per_goal', 100)
 
     def step(self, action):
         obs, reward, _, _, _ = self.gym_env.step(action)
@@ -163,9 +164,10 @@ class PusherContinuing(BaseContinuingEnvBasedOnGym):
 
     def __init__(self, **env_args):
         self.env_key = 'Pusher-v5'
+        env_args['reward_control_weight'] = 0
         super().__init__(**env_args)
         self.steps_per_task = 0
-        self.max_steps_per_task = env_args.get('max_steps_per_task', 100)
+        self.max_steps_per_task = env_args.get('max_steps_per_task', 200)
 
     def step(self, action):
         obs, reward, _, _, _ = self.gym_env.step(action)
@@ -177,6 +179,8 @@ class PusherContinuing(BaseContinuingEnvBasedOnGym):
             # recompute the reward for the new goal (the action is used only to compute the cost of taking that action)
             reward, _ = self.gym_env.unwrapped._get_rew(action)
             self.steps_per_task = 0
+        # retrict the angles to [-pi, pi] 
+        obs[:7] = _bound_angles(obs[:7])
         return obs, reward
 
     def reset_task(self):
