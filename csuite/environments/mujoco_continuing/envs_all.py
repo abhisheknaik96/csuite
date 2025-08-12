@@ -4,7 +4,7 @@ import numpy as np
 import gymnasium as gym
 
 
-def _bound_angles(self, angles):
+def _bound_angles(angles):
     """Bound the angles in [-pi, pi]."""
     angles %= (2 * np.pi)
     for i, _ in enumerate(angles):
